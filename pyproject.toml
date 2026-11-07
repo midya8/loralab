@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loralab"
+version = "0.1.0"
+description = "Low-rank adaptation from scratch with measured accuracy, cost, and retention trade-offs"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+include = ["loralab*"]
