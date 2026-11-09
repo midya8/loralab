@@ -20,7 +20,7 @@ def close(test,a,b,path='root'):
 class TestArchive(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.archive=json.loads(gzip.decompress(files('loralab').joinpath('coordinate_data/original-epochs.json.gz').read_bytes()))
+        cls.archive=json.loads(gzip.decompress(files('loralab').joinpath('coordinate_data/6-original-epochs.json.gz').read_bytes()))
 
     def test_full_regeneration(self):
         close(self,build_archive(),self.archive)
@@ -47,7 +47,7 @@ class TestArchive(unittest.TestCase):
                 if epoch<30:adapter.train_epoch(fx['trainB'],fx['lr'])
 
     def test_all_complete_witnesses(self):
-        witnesses=json.loads(gzip.decompress(files('loralab').joinpath('coordinate_data/witnesses.json.gz').read_bytes()))
+        witnesses=json.loads(gzip.decompress(files('loralab').joinpath('coordinate_data/7-witnesses.json.gz').read_bytes()))
         self.assertEqual(len(witnesses),48)
         for item in witnesses:
             s=item['selection']
@@ -65,7 +65,7 @@ class TestArchive(unittest.TestCase):
 class TestStrictJSON(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.archive=json.loads(gzip.decompress(files('loralab').joinpath('coordinate_data/original-epochs.json.gz').read_bytes()))
+        cls.archive=json.loads(gzip.decompress(files('loralab').joinpath('coordinate_data/6-original-epochs.json.gz').read_bytes()))
 
     def test_bad_syntax_limits_duplicates_nonfinite(self):
         for s in ['{"x":1,"x":2}','[NaN]','[Infinity]','[1e999]','['*17+'0'+']'*17,'x','{'+' '*1_000_000+'}']:
