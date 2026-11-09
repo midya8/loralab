@@ -26,6 +26,14 @@ What the fixture shows, stated plainly:
 - On this fixture the adapters retain *less* accuracy on the original distribution than full fine-tuning does (0.76 vs 0.96). That is measured behavior of this fixture with this optimizer, not a general property of LoRA, and it is reported because hiding it would be cherry-picking.
 - Merging `W + B @ A` reproduces adapter logits with max abs diff ~1e-14 on the fixture: the adapter computes `W x + B (A x)` and the merged model computes `(W + B @ A) x`, so the only difference is floating-point reassociation. The test pins the diff below 1e-12 and also pins that it is nonzero - the equivalence is exact algebra and approximate arithmetic.
 
+## v0.2: same model, different step
+
+The [factor-coordinate inspector](https://midya8.github.io/loralab/) keeps the original experiment and exposes a separate question: equivalent low-rank factors have the same merged model, but ordinary factor SGD can make different next updates. Independent Python and browser evaluators show full factor gradients, the finite-step first/second-order update identity, matrix gauges and scalar learning-rate compensation. Orthogonal basis changes preserve plain SGD in exact arithmetic; scaling and shear need not.
+
+All 124 original epoch boundaries remain available, including the adverse retention results. The sweep shows every sampled scale, not a selected winner. Factor width is separate from matrix rank: the original three-output classifier has update rank at most three, and widths 4 and 8 use more parameters than full fine-tuning. The full baseline trains its bias; adapters freeze it. These facts are retained, not optimized away.
+
+[Equations, schema, installed reproduction and limits](COORDINATES.md) explain the diagnostic, the unchanged online trainer, numerical bounds and classical attribution. This is not a new optimizer, a LoRA+/LoRA-RITE implementation, or a transformer benchmark.
+
 ## CLI
 
 ```bash
@@ -45,11 +53,20 @@ python -m unittest discover -s tests
 ./examples/demo.sh
 ```
 
-14 tests. No dependencies beyond Python 3.10+.
+31 Python tests, including all 14 original tests unchanged. Four substantive Node/actual-Chrome tests compare 54 complete witnesses (591,615 numeric values), all retained states, strict JSON and actual responsive UI behavior. No runtime dependencies beyond Python 3.10+; web tests need Node 22+ and Chrome.
+
+```bash
+node --test tests/test_coordinates.cjs tests/test_coordinates_browser.cjs
+bash examples/verify_wheel.sh
+python -m loralab trajectory --rank 2 --epoch 30 --gauge-scale 4
+python -m loralab coordinates --input problem.json --gauge-scale 4
+```
+
+`trajectory` reads the packaged original archive and does not retrain. The scalar CLI and full-matrix Python/browser API are described in [COORDINATES.md](COORDINATES.md).
 
 ## Limitations
 
-The base model is a linear classifier over hashed bag-of-words, not a transformer; the point is the adaptation mechanics (frozen base, low-rank factors, merge equivalence, cost/retention accounting), which are model-shape-independent. The fixture is synthetic and small so the suite runs deterministically in seconds; the retention behavior above is a property of this fixture, not a benchmark claim about LoRA in general.
+The base model is a linear classifier over hashed bag-of-words, not a transformer; the point is the adaptation mechanics (frozen base, low-rank factors, merge equivalence, cost/retention accounting), which apply to compatible linear layers, while parameter savings depend on shape. The fixture is synthetic and small so the suite runs deterministically in seconds; the retention behavior above is a property of this fixture, not a benchmark claim about LoRA in general.
 
 ## License
 
