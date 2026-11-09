@@ -10,7 +10,7 @@ def write(path,obj):
     path.write_bytes(gzip.compress(raw,mtime=0))
     return raw
 archive=build_archive()
-raw=write(ROOT/'loralab/coordinate_data/original-epochs.json.gz',archive)
+raw=write(ROOT/'loralab/coordinate_data/6-original-epochs.json.gz',archive)
 witnesses=[]
 for rank in [1,2,4,8]:
     for epoch in [0,1,10,30]:
@@ -27,7 +27,7 @@ controls=[{"name":"identity","options":{"scalar_gauge":1}},
 for item in controls:
     item['problem']=toy
     item['report']=audit(toy,**item['options'])
-write(ROOT/'loralab/coordinate_data/controls.json.gz',controls)
-write(ROOT/'loralab/coordinate_data/witnesses.json.gz',witnesses)
-(ROOT/'docs/data.js').write_text('globalThis.LORA_ARCHIVE='+raw.decode()+';\n')
+write(ROOT/'loralab/coordinate_data/8-controls.json.gz',controls)
+write(ROOT/'loralab/coordinate_data/7-witnesses.json.gz',witnesses)
+(ROOT/'docs/5-data.js').write_text('globalThis.LORA_ARCHIVE='+raw.decode()+';\n')
 print('124 full epoch states,',len(witnesses),'complete report witnesses,',len(raw),'archive JSON bytes')
