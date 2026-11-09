@@ -18,7 +18,7 @@ for name in ['cli','data','eval','lora','model','coordinates','coordinate_fixtur
 from loralab.coordinate_fixtures import build_archive,problem_at,trajectory_report
 from loralab.coordinates import audit
 root=files('loralab').joinpath('coordinate_data')
-archive=json.loads(gzip.decompress(root.joinpath('original-epochs.json.gz').read_bytes()))
+archive=json.loads(gzip.decompress(root.joinpath('6-original-epochs.json.gz').read_bytes()))
 regenerated=build_archive()
 def compare(a,b,path='root',tol=1e-11):
     if isinstance(b,dict):
@@ -32,10 +32,10 @@ def compare(a,b,path='root',tol=1e-11):
 compare(regenerated,archive)
 assert json.load(open('evaluate.json'))==regenerated['original_report']
 compare(json.load(open('trajectory.json')),trajectory_report(archive),tol=1e-12)
-for item in json.loads(gzip.decompress(root.joinpath('witnesses.json.gz').read_bytes())):
+for item in json.loads(gzip.decompress(root.joinpath('7-witnesses.json.gz').read_bytes())):
     s=item['selection']
     compare(trajectory_report(archive,s['rank'],s['epoch'],s['batch'],s['scale'],s['learning_rate']),item['report'],tol=1e-12)
-for item in json.loads(gzip.decompress(root.joinpath('controls.json.gz').read_bytes())):
+for item in json.loads(gzip.decompress(root.joinpath('8-controls.json.gz').read_bytes())):
     compare(audit(item['problem'],**item['options']),item['report'],tol=1e-12)
 assert sum(len(r['states'])for r in archive['runs'])==124
 assert 'All gates passed' in pathlib.Path('gates.txt').read_text()
