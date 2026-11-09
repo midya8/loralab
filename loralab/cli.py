@@ -38,7 +38,42 @@ def main(argv=None) -> int:
     p_gate.add_argument("--max-merge-diff", type=float, default=None,
                         help="maximum merged-vs-adapter logit diff")
 
+    p_coord = sub.add_parser("coordinates")
+    p_coord.add_argument("--input", required=True, help="strict JSON problem file, or - for stdin")
+    p_coord.add_argument("--gauge-scale", type=float, default=4.0)
+    p_coord.add_argument("--learning-rate", type=float, default=0.1)
+    p_trace = sub.add_parser("trajectory")
+    p_trace.add_argument("--rank", type=int, choices=(1, 2, 4, 8), default=2)
+    p_trace.add_argument("--epoch", type=int, default=30)
+    p_trace.add_argument("--batch", choices=("first_train", "full_train"), default="first_train")
+    p_trace.add_argument("--gauge-scale", type=float, default=4.0)
+    p_trace.add_argument("--learning-rate", type=float, default=0.1)
+
     args = parser.parse_args(argv)
+    if args.command in ("coordinates", "trajectory"):
+        try:
+            if args.command == "coordinates":
+                from .coordinate_report import report_json
+                if args.input == "-":
+                    text = sys.stdin.read(1_000_001)
+                else:
+                    from pathlib import Path
+                    with Path(args.input).open(encoding="utf-8") as source:
+                        text = source.read(1_000_001)
+                print(report_json(text, args.gauge_scale, args.learning_rate))
+            else:
+                import gzip
+                from importlib.resources import files
+                from .coordinate_fixtures import trajectory_report
+                archive = json.loads(gzip.decompress(files("loralab").joinpath(
+                    "coordinate_data/original-epochs.json.gz").read_bytes()))
+                result = trajectory_report(archive, args.rank, args.epoch, args.batch,
+                                           args.gauge_scale, args.learning_rate)
+                print(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
+        except (ValueError, OSError, UnicodeError) as exc:
+            print("coordinate error: " + str(exc), file=sys.stderr)
+            return 2
+        return 0
     fx = build_fixture(args.corpus_per_class, args.test_per_class,
                        base_epochs=args.epochs, lr=args.lr)
     results = run_evaluation(fx)
