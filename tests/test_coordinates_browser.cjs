@@ -11,9 +11,9 @@ test('actual Chrome coordinate UI, all epoch selectors, gauge states, exports an
  await call('Page.enable');await call('Page.navigate',{url:process.env.LORA_URL||'file://'+path.resolve(__dirname,'../docs/index.html')});
  for(let i=0;i<300;i++){if(await js('Boolean(globalThis.LORA_CURRENT)'))break;await delay(20);}
  assert.equal(await js('LORA_CURRENT.schema'),'loralab.factor-coordinates.v1');
- const witnesses=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/witnesses.json.gz')));
+ const witnesses=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/7-witnesses.json.gz')));
  for(const w of witnesses){const s=w.selection,r=await js(`LoraCoordinates.audit(LoraCoordinates.problemAt(LORA_ARCHIVE,${s.rank},${s.epoch},'${s.batch}'),{scalar_gauge:${s.scale},learning_rate:${s.learning_rate}})`);r.fixture_selection={factor_width:s.rank,epoch:s.epoch,batch:s.batch,original_online_learning_rate:.5,diagnostic_is_retraining:false};equal(r,w.report);}
- const controls=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/controls.json.gz')));
+ const controls=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/8-controls.json.gz')));
  for(const w of controls)equal(await js(`LoraCoordinates.audit(${JSON.stringify(w.problem)},${JSON.stringify(w.options)})`),w.report);
 
  const set=async(id,value)=>js(`document.getElementById(${JSON.stringify(id)}).value=${JSON.stringify(String(value))};document.getElementById(${JSON.stringify(id)}).dispatchEvent(new Event('input'))`);
