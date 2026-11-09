@@ -66,7 +66,7 @@ def main(argv=None) -> int:
                 from importlib.resources import files
                 from .coordinate_fixtures import trajectory_report
                 archive = json.loads(gzip.decompress(files("loralab").joinpath(
-                    "coordinate_data/original-epochs.json.gz").read_bytes()))
+                    "coordinate_data/6-original-epochs.json.gz").read_bytes()))
                 result = trajectory_report(archive, args.rank, args.epoch, args.batch,
                                            args.gauge_scale, args.learning_rate)
                 print(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
