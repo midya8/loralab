@@ -1,8 +1,8 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),zlib=require('node:zlib');
 const C=require('../docs/coordinates.js');
-const archive=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/original-epochs.json.gz')));
-const witnesses=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/witnesses.json.gz')));
+const archive=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/6-original-epochs.json.gz')));
+const witnesses=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/7-witnesses.json.gz')));
 let count=0,maxDelta=0;
 function compare(a,b,path='root'){
  assert.equal(typeof a,typeof b,path);
@@ -13,7 +13,7 @@ function compare(a,b,path='root'){
 }
 test('48 complete native report witnesses plus six non-scalar/orthogonal controls',()=>{
  for(const w of witnesses){const s=w.selection;let r=C.audit(C.problemAt(archive,s.rank,s.epoch,s.batch),{scalar_gauge:s.scale,learning_rate:s.learning_rate});r.fixture_selection={factor_width:s.rank,epoch:s.epoch,batch:s.batch,original_online_learning_rate:.5,diagnostic_is_retraining:false};compare(r,w.report);}
- const controls=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/controls.json.gz')));
+ const controls=JSON.parse(zlib.gunzipSync(fs.readFileSync('loralab/coordinate_data/8-controls.json.gz')));
  for(const w of controls)compare(C.audit(w.problem,w.options),w.report);
  console.log('complete numeric leaves',count,'max normalized delta',maxDelta);
 });
