@@ -61,7 +61,7 @@ A diagnostic batch can be the original first training example or all 120 origina
 
 ## Original archive
 
-`coordinate_data/original-epochs.json.gz` includes:
+`coordinate_data/6-original-epochs.json.gz` includes:
 
 - The entire trained base matrix and bias.
 - All original 120-example A/B training and 45-example A/B test feature/label datasets.
@@ -71,7 +71,7 @@ A diagnostic batch can be the original first training example or all 120 origina
 
 There are 124 recorded states. This is not an archive of all 14,400 individual online updates. No best epoch replaces epoch 30. Regeneration uses the unchanged original fixture and online trainer. Tests independently replay the original trainer, compare every stored factor and accuracy, and recompute each loss. The archive includes adverse retention, not only shifted accuracy. Original reported numbers agree with the original README; no training is tuned to improve them.
 
-`witnesses.json.gz` contains 48 complete native reports: four widths, epochs 0/1/10/30 and scalar gauges 0.25, 1 and 4. `controls.json.gz` adds identity, negative scale, shear, orthogonal, permutation and zero-rate cases. All matrices, gradients, logits, probabilities and update terms are retained, not only headline scores.
+`7-witnesses.json.gz` contains 48 complete native reports: four widths, epochs 0/1/10/30 and scalar gauges 0.25, 1 and 4. `8-controls.json.gz` adds identity, negative scale, shear, orthogonal, permutation and zero-rate cases. All matrices, gradients, logits, probabilities and update terms are retained, not only headline scores.
 
 The browser's scale sweep shows all 31 positive gauges from 1/32 to 32, equally spaced in log2 scale, at the current fixed model, examples and diagnostic rate. A full matrix gauge in the selected report does not change this separate scalar sweep. No winning scale is selected or claimed.
 
