@@ -54,6 +54,6 @@ if __name__=='__main__':
     c=corpus()
     payload=json.dumps(c,sort_keys=True,separators=(',',':')).encode()
     Path('loralab/rank_data').mkdir(exist_ok=True)
-    Path('loralab/rank_data/9-rank-witnesses.json').write_bytes(payload)
+    Path('loralab/rank_data/9-rank-witnesses.json').write_bytes(payload+b'\n')
     Path('docs/rank-data.js').write_text('globalThis.LORA_RANK_CORPUS='+payload.decode()+';\n')
     print(len(c['controls']),'controls;',len(c['archive']),'complete-report archive hashes')
