@@ -14,4 +14,4 @@ requires-python = ">=3.10"
 include = ["loralab*"]
 
 [tool.setuptools.package-data]
-loralab = ["coordinate_data/*.json.gz"]
+loralab = ["coordinate_data/*.json.gz", "rank_data/*.json"]

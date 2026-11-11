@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: node --test tests/test_coordinates.cjs tests/test_coordinates_browser.cjs
+      - run: node --test tests/test_coordinates.cjs tests/test_coordinates_browser.cjs tests/test_rank.cjs tests/test_rank_browser.cjs
   package:
     runs-on: ubuntu-latest
     steps:
@@ -36,3 +36,4 @@ jobs:
         with:
           python-version: '3.10'
       - run: bash examples/verify_wheel.sh
+      - run: bash examples/verify_rank_wheel.sh
