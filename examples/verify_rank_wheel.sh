@@ -15,7 +15,7 @@ from loralab.predictive_rank import audit,archive_problem
 from loralab.rank_verify import verify_report
 root=files('loralab').joinpath('coordinate_data')
 c=corpus()
-assert json.dumps(c,sort_keys=True,separators=(',',':')).encode()==files('loralab').joinpath('rank_data/9-rank-witnesses.json').read_bytes()
+assert json.dumps(c,sort_keys=True,separators=(',',':')).encode()+b'\n'==files('loralab').joinpath('rank_data/9-rank-witnesses.json').read_bytes()
 arc=json.loads(gzip.decompress(root.joinpath('6-original-epochs.json.gz').read_bytes()))
 for run in arc['runs']:
     for state in run['states']:
