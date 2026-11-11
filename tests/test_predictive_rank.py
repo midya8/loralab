@@ -54,7 +54,7 @@ class PredictiveRankTests(unittest.TestCase):
     def test_complete_archived_corpus_regeneration_exact(self):
         c=corpus();stored=Path('loralab/rank_data/9-rank-witnesses.json').read_bytes()
         payload=json.dumps(c,sort_keys=True,separators=(',',':')).encode()
-        self.assertEqual(payload,stored)
+        self.assertEqual(payload+b'\n',stored)
         self.assertEqual(len(c['archive']),124)
         for s in c['archive']:
             self.assertEqual(s['raw'],0 if not s['epoch'] else min(3,s['width']))
