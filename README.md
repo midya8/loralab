@@ -34,6 +34,20 @@ All 124 original epoch boundaries remain available, including the adverse retent
 
 [Equations, schema, installed reproduction and limits](COORDINATES.md) explain the diagnostic, the unchanged online trainer, numerical bounds and classical attribution. This is not a new optimizer, a LoRA+/LoRA-RITE implementation, or a transformer benchmark.
 
+## v0.3: how much rank changes a prediction?
+
+The separate [exact predictive-rank inspector](https://midya8.github.io/loralab/rank.html) distinguishes supplied factor width, matrix rank, minimum all-input softmax-equivalent rank and finite-probe rank. It returns constructive rational factors plus a nonzero-minor lower witness, not a numerical-rank threshold. A separate native verifier checks products and determinants without running the rank producer. An independent browser BigInt engine decodes the archive's represented binary64 factors exactly.
+
+All 124 archived states are retained. At every nonzero epoch, width-4/8 products have exact rank 3 but class-difference rank 2; width-1/2 ranks remain 1/2. The minimum all-input equivalent rank is the class-difference rank. Finite-probe rank can be smaller, with an explicit unseen-coordinate example and a nullspace construction showing why non-spanning probes do not prove global equality. These are classical linear-softmax identities, not a new algorithm or training result.
+
+[Proof, exact schema, independent verifier, installed replay and limits](PREDICTIVE_RANK.md). Exported factors certify real probability functions with fixed base/bias, not rounded probabilities, training dynamics, accuracy, storage bytes or inference speed. Exact rank is not tolerance-based numerical rank, and fewer rational factor scalars need not use fewer bytes.
+
+```bash
+python -m loralab.predictive_rank --input input.json > report.json
+python -m loralab.predictive_rank --verify --input report.json
+bash examples/verify_rank_wheel.sh
+```
+
 ## CLI
 
 ```bash
@@ -53,10 +67,10 @@ python -m unittest discover -s tests
 ./examples/demo.sh
 ```
 
-31 Python tests, including all 14 original tests unchanged. Four substantive Node/actual-Chrome tests compare 54 complete witnesses (591,615 numeric values), all retained states, strict JSON and actual responsive UI behavior. No runtime dependencies beyond Python 3.10+; web tests need Node 22+ and Chrome.
+39 Python tests, including all 31 previous tests unchanged. Seven substantive Node/actual-Chrome tests compare 54 complete witnesses (591,615 numeric values), all retained states, strict JSON and actual responsive UI behavior. The new exact-rank suite adds exhaustive small-matrix/minor checks, all124 full-report hash comparisons,11 exact controls and actual UI/export/native-replay checks. No runtime dependencies beyond Python 3.10+; web tests need Node 22+ and Chrome.
 
 ```bash
-node --test tests/test_coordinates.cjs tests/test_coordinates_browser.cjs
+node --test tests/test_coordinates.cjs tests/test_coordinates_browser.cjs tests/test_rank.cjs tests/test_rank_browser.cjs
 bash examples/verify_wheel.sh
 python -m loralab trajectory --rank 2 --epoch 30 --gauge-scale 4
 python -m loralab coordinates --input problem.json --gauge-scale 4
