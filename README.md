@@ -1,13 +1,26 @@
 # LoRALab
 
-Low-rank adaptation from scratch: freeze a trained model, learn only a rank-`r` delta `W' = W + B @ A`, and measure what you actually bought. No ML frameworks - the forward pass, the gradients through the low-rank factors, and the evaluation harness are all hand-derived Python.
+Low-rank adaptation from scratch: freeze a trained model, learn only a rank-`r` delta `W' = W + B @ A`, and compare parameter counts, accuracy and retained accuracy. No ML frameworks - the forward pass, the gradients through the low-rank factors, and the evaluation harness are all hand-derived Python.
 
-## What it does
+## Choose an analysis
+
+| Question | Entry point | Result |
+| --- | --- | --- |
+| How do the fixed adaptation arms compare? | `evaluate`, `gates` | Shifted accuracy, original accuracy, parameter share and merge residual |
+| Does a factor-coordinate change preserve the next SGD step? | `trajectory`, `coordinates`, `docs/index.html` | Full gradients, finite update identities and gauge comparisons |
+| What is the minimum softmax-equivalent rank? | `loralab.predictive_rank`, `docs/rank.html` | Rational factors, minor witnesses and finite-probe distinctions |
+
+Factor width, product rank and predictive rank are different quantities. A rank
+certificate does not certify training dynamics, accuracy, storage savings or
+speed. The synthetic comparisons below retain the stronger full-fine-tuning
+baseline and adverse retention results.
+
+## Training setup
 
 - Trains a base linear classifier on distribution A (a synthetic NLP topic fixture).
 - Shifts the distribution: B uses disjoint vocabulary, so the base model's accuracy on B collapses (1.00 → 0.44 on the checked-in fixture).
 - Adapts to B with low-rank adapters at ranks 1-8 and with full fine-tuning, then measures, for each: accuracy on B, retained accuracy on A, and trainable-parameter share.
-- Verifies that merging the adapter into the base weights (`W + B @ A`) reproduces adapter logits to within floating-point reassociation error, and enforces the whole story as CLI gates that fail in both directions.
+- Verifies that merging the adapter into the base weights (`W + B @ A`) reproduces adapter logits to within floating-point reassociation error, and checks the accuracy and parameter thresholds with CLI gates.
 
 ## Measured results (checked-in fixture, pinned in tests)
 
@@ -20,21 +33,21 @@ Low-rank adaptation from scratch: freeze a trained model, learn only a rank-`r` 
 | lora r=8 | 1.0000 | 0.7778 | 1048 | 270.8% |
 | full fine-tune | 1.0000 | 0.9556 | 387 | 100.0% |
 
-What the fixture shows, stated plainly:
+For this fixed fixture:
 
 - A rank-2 adapter matches full fine-tuning accuracy on the shifted distribution while training 67.7% of the parameters.
-- On this fixture the adapters retain *less* accuracy on the original distribution than full fine-tuning does (0.76 vs 0.96). That is measured behavior of this fixture with this optimizer, not a general property of LoRA, and it is reported because hiding it would be cherry-picking.
+- On this fixture the adapters retain *less* accuracy on the original distribution than full fine-tuning does (0.76 vs 0.96). That is measured behavior of this fixture with this optimizer, not a general property of LoRA.
 - Merging `W + B @ A` reproduces adapter logits with max abs diff ~1e-14 on the fixture: the adapter computes `W x + B (A x)` and the merged model computes `(W + B @ A) x`, so the only difference is floating-point reassociation. The test pins the diff below 1e-12 and also pins that it is nonzero - the equivalence is exact algebra and approximate arithmetic.
 
-## v0.2: same model, different step
+## Factor-coordinate updates (v0.2)
 
 The [factor-coordinate inspector](https://midya8.github.io/loralab/) keeps the original experiment and exposes a separate question: equivalent low-rank factors have the same merged model, but ordinary factor SGD can make different next updates. Independent Python and browser evaluators show full factor gradients, the finite-step first/second-order update identity, matrix gauges and scalar learning-rate compensation. Orthogonal basis changes preserve plain SGD in exact arithmetic; scaling and shear need not.
 
-All 124 original epoch boundaries remain available, including the adverse retention results. The sweep shows every sampled scale, not a selected winner. Factor width is separate from matrix rank: the original three-output classifier has update rank at most three, and widths 4 and 8 use more parameters than full fine-tuning. The full baseline trains its bias; adapters freeze it. These facts are retained, not optimized away.
+All 124 original epoch boundaries remain available, including the adverse retention results. The sweep shows every sampled scale, not a selected winner. Factor width is separate from matrix rank: the original three-output classifier has update rank at most three, and widths 4 and 8 use more parameters than full fine-tuning. The full baseline trains its bias; adapters freeze it. These comparisons do not imply parameter savings at every width.
 
 [Equations, schema, installed reproduction and limits](COORDINATES.md) explain the diagnostic, the unchanged online trainer, numerical bounds and classical attribution. This is not a new optimizer, a LoRA+/LoRA-RITE implementation, or a transformer benchmark.
 
-## v0.3: how much rank changes a prediction?
+## Exact predictive rank (v0.3)
 
 The separate [exact predictive-rank inspector](https://midya8.github.io/loralab/rank.html) distinguishes supplied factor width, matrix rank, minimum all-input softmax-equivalent rank and finite-probe rank. It returns constructive rational factors plus a nonzero-minor lower witness, not a numerical-rank threshold. A separate native verifier checks products and determinants without running the rank producer. An independent browser BigInt engine decodes the archive's represented binary64 factors exactly.
 
@@ -49,6 +62,14 @@ bash examples/verify_rank_wheel.sh
 ```
 
 ## CLI
+
+From a checkout, create an isolated environment before running the commands:
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install .
+```
 
 ```bash
 python -m loralab evaluate                 # table
@@ -67,7 +88,9 @@ python -m unittest discover -s tests
 ./examples/demo.sh
 ```
 
-39 Python tests, including all 31 previous tests unchanged. Seven substantive Node/actual-Chrome tests compare 54 complete witnesses (591,615 numeric values), all retained states, strict JSON and actual responsive UI behavior. The new exact-rank suite adds exhaustive small-matrix/minor checks, all124 full-report hash comparisons,11 exact controls and actual UI/export/native-replay checks. No runtime dependencies beyond Python 3.10+; web tests need Node 22+ and Chrome.
+The Python suite checks training, coordinate identities, exact-rank certificates and independent verification. Node and actual-Chrome tests compare full witnesses and every archived rank report, reject malformed input, and replay browser exports through the native verifier. Responsive checks cover both inspectors.
+
+No runtime dependencies beyond Python 3.10+. Web tests need Node 22+ and Chrome. The wheel scripts below install into temporary environments and check the packaged data outside the checkout.
 
 ```bash
 node --test tests/test_coordinates.cjs tests/test_coordinates_browser.cjs tests/test_rank.cjs tests/test_rank_browser.cjs
